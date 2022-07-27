@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FriendsServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.service.impl</a> &gt; <span class="el_source">FriendsServiceImpl.java</span></div><h1>FriendsServiceImpl.java</h1><pre class="source lang-java linenums">package info.yash.social.app.service.impl;
+
+import info.yash.social.app.converters.UserDtoToUserConverter;
+import info.yash.social.app.converters.UserToUserDtoConverter;
+import info.yash.social.app.dto.UserDTO;
+import info.yash.social.app.entities.Friendship;
+import info.yash.social.app.entities.User;
+import info.yash.social.app.repositories.FriendshipRepository;
+import info.yash.social.app.service.FriendsService;
+import info.yash.social.app.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+@Service
+<span class="fc" id="L24">@RequiredArgsConstructor</span>
+public class FriendsServiceImpl implements FriendsService {
+
+    private final FriendshipRepository friendshipRepository;
+    private final UserToUserDtoConverter userToUserDtoConverter;
+    private final UserDtoToUserConverter userDtoToUserConverter;
+    private final UserService userService;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map&lt;String, Set&lt;UserDTO&gt;&gt; getFriends(Long userId, String search) {
+<span class="nc" id="L35">        List&lt;Friendship&gt; requests = friendshipRepository.findAllByUserSenderIdOrUserReceiverId(userId, userId);</span>
+<span class="nc" id="L36">        Map&lt;Boolean, List&lt;Friendship&gt;&gt; requestMap = requests.stream()</span>
+<span class="nc" id="L37">                .collect(Collectors.partitioningBy(Friendship::getAccepted));</span>
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        Predicate&lt;User&gt; userPredicate = u -&gt; StringUtils.isEmpty(search) ||</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                (u.getFirstName() + ' ' + u.getLastName()).toLowerCase().contains(search.toLowerCase());</span>
+<span class="nc" id="L41">        Set&lt;UserDTO&gt; usersNotAcceptedRequests = requestMap.get(false).stream()</span>
+<span class="nc" id="L42">                .filter(r -&gt; r.getUserSender().getId().equals(userId))</span>
+<span class="nc" id="L43">                .map(Friendship::getUserReceiver)</span>
+<span class="nc" id="L44">                .filter(userPredicate)</span>
+<span class="nc" id="L45">                .map(userToUserDtoConverter::convert)</span>
+<span class="nc" id="L46">                .collect(Collectors.toSet());</span>
+
+<span class="nc" id="L48">        Set&lt;UserDTO&gt; notAcceptedRequestsToUser = requestMap.get(false).stream()</span>
+<span class="nc" id="L49">                .filter(r -&gt; r.getUserReceiver().getId().equals(userId))</span>
+<span class="nc" id="L50">                .map(Friendship::getUserSender)</span>
+<span class="nc" id="L51">                .filter(userPredicate)</span>
+<span class="nc" id="L52">                .map(userToUserDtoConverter::convert)</span>
+<span class="nc" id="L53">                .collect(Collectors.toSet());</span>
+
+<span class="nc" id="L55">        Set&lt;UserDTO&gt; friendsOfUser = requestMap.get(true).stream()</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                .map(r -&gt; r.getUserSender().getId().equals(userId) ? r.getUserReceiver() : r.getUserSender())</span>
+<span class="nc" id="L57">                .filter(userPredicate)</span>
+<span class="nc" id="L58">                .map(userToUserDtoConverter::convert)</span>
+<span class="nc" id="L59">                .collect(Collectors.toSet());</span>
+
+<span class="nc" id="L61">        Map&lt;String, Set&lt;UserDTO&gt;&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L62">        map.put(&quot;usersNotAcceptedRequests&quot;, usersNotAcceptedRequests);</span>
+<span class="nc" id="L63">        map.put(&quot;notAcceptedRequestsToUser&quot;, notAcceptedRequestsToUser);</span>
+<span class="nc" id="L64">        map.put(&quot;friendsOfUser&quot;, friendsOfUser);</span>
+
+<span class="nc" id="L66">        return map;</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set&lt;UserDTO&gt; getAcceptedFriendshipUsers(Long id) {
+<span class="nc" id="L72">        List&lt;Friendship&gt; friends = friendshipRepository.findAcceptedFriendshipUsers(id);</span>
+<span class="nc" id="L73">        return friends.stream()</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                      .map(r -&gt; r.getUserSender().getId().equals(id) ? r.getUserReceiver() : r.getUserSender())</span>
+<span class="nc" id="L75">                      .map(userToUserDtoConverter::convert)</span>
+<span class="nc" id="L76">                      .collect(Collectors.toSet());</span>
+    }
+
+    @Override
+    @Transactional
+    public void deleteFriendship(UserDTO userDTO, Long friendId) {
+<span class="nc" id="L82">        User user = userDtoToUserConverter.convert(userDTO);</span>
+<span class="nc" id="L83">        User friend = userService.getUser(friendId);</span>
+<span class="nc" id="L84">        friendshipRepository.deleteFriendRequests(user, friend);</span>
+<span class="nc" id="L85">    }</span>
+
+    @Override
+    @Transactional
+    public void acceptFriendship(UserDTO userDTO, Long friendId) {
+<span class="nc" id="L90">        User user = userDtoToUserConverter.convert(userDTO);</span>
+<span class="nc" id="L91">        User friend = userService.getUser(friendId);</span>
+<span class="nc" id="L92">        friendshipRepository.deleteFriendRequests(user, friend);</span>
+<span class="nc" id="L93">        friendshipRepository.addFriendship(user, friend);</span>
+<span class="nc" id="L94">    }</span>
+
+    @Override
+    @Transactional
+    public void addToFriends(UserDTO userDTO, Long friendId) {
+<span class="nc" id="L99">        User user = userDtoToUserConverter.convert(userDTO);</span>
+<span class="nc" id="L100">        User friend = userService.getUser(friendId);</span>
+<span class="nc" id="L101">        friendshipRepository.addToFriends(user, friend);</span>
+<span class="nc" id="L102">    }</span>
+
+    @Override
+    @Transactional(readOnly = true)
+    public Boolean checkFriendship(UserDTO userDTO, UserDTO friendDTO) {
+<span class="nc" id="L107">        User user = userDtoToUserConverter.convert(userDTO);</span>
+<span class="nc" id="L108">        User friend = userDtoToUserConverter.convert(friendDTO);</span>
+<span class="nc" id="L109">        return friendshipRepository.checkFriendshipExists(user, friend);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

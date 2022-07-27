@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProfileController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.controllers</a> &gt; <span class="el_source">ProfileController.java</span></div><h1>ProfileController.java</h1><pre class="source lang-java linenums">package info.yash.social.app.controllers;
+
+import info.yash.social.app.dto.MessageDTO;
+import info.yash.social.app.dto.UserDTO;
+import info.yash.social.app.service.FriendsService;
+import info.yash.social.app.service.MessagesService;
+import info.yash.social.app.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.util.Set;
+
+import static info.yash.social.app.utils.ServerUtils.getUserFromSession;
+
+@Controller
+@RequestMapping(&quot;/user&quot;)
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+public class ProfileController {
+
+    private final UserService userService;
+    private final FriendsService friendsService;
+    private final MessagesService messagesService;
+
+    @GetMapping(&quot;/profile&quot;)
+    public String getProfilePage(Model model, HttpServletRequest request) {
+<span class="nc" id="L34">        UserDTO user = getUserFromSession(request);</span>
+<span class="nc" id="L35">        model.addAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L36">        MessageDTO recentMessage = messagesService.getRecentMessage(user.getId());</span>
+<span class="nc" id="L37">        model.addAttribute(&quot;recentMessage&quot;, recentMessage);</span>
+<span class="nc" id="L38">        Set&lt;UserDTO&gt; friends = friendsService.getAcceptedFriendshipUsers(user.getId());</span>
+<span class="nc" id="L39">        model.addAttribute(&quot;friends&quot;, friends);</span>
+<span class="nc" id="L40">        return &quot;profile&quot;;</span>
+    }
+
+    @GetMapping(&quot;/profile/{id}&quot;)
+    public String getUserPage(@PathVariable Long id, Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+<span class="nc" id="L45">        UserDTO sessionUser = getUserFromSession(request);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if(sessionUser.getId().equals(id)) {</span>
+<span class="nc" id="L47">            return &quot;redirect:/user/profile&quot;;</span>
+        }
+<span class="nc" id="L49">        UserDTO user = userService.getUserById(id);</span>
+<span class="nc" id="L50">        Set&lt;UserDTO&gt; friends = friendsService.getAcceptedFriendshipUsers(id);</span>
+<span class="nc" id="L51">        Boolean friendship = friendsService.checkFriendship(sessionUser, user);</span>
+<span class="nc" id="L52">        model.addAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L53">        model.addAttribute(&quot;usersHaveFriendship&quot;, friendship);</span>
+<span class="nc" id="L54">        model.addAttribute(&quot;friends&quot;, friends);</span>
+<span class="nc" id="L55">        return &quot;profile&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

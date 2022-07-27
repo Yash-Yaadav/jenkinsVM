@@ -1,0 +1,21 @@
+package info.yash.social.app.service;
+
+import info.yash.social.app.dto.UserDTO;
+
+import java.util.Map;
+import java.util.Set;
+
+public interface FriendsService {
+
+    Map<String, Set<UserDTO>> getFriends(Long userId, String search);
+
+    Set<UserDTO> getAcceptedFriendshipUsers(Long id);
+
+    void deleteFriendship(UserDTO userDTO, Long friendId);
+
+    void acceptFriendship(UserDTO userDTO, Long friendId);
+
+    void addToFriends(UserDTO user, Long friendId);
+
+    Boolean checkFriendship(UserDTO user, UserDTO friend);
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.dto</a> &gt; <span class="el_source">UserDTO.java</span></div><h1>UserDTO.java</h1><pre class="source lang-java linenums">package info.yash.social.app.dto;
+
+import info.yash.social.app.validation.FieldMatch;
+import info.yash.social.app.validation.Password;
+import info.yash.social.app.validation.ValidEmail;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.util.Objects;
+
+@Getter
+<span class="nc" id="L16">@Setter</span>
+<span class="nc" id="L17">@ToString</span>
+<span class="nc" id="L18">@Builder</span>
+<span class="nc" id="L19">@NoArgsConstructor</span>
+<span class="nc" id="L20">@AllArgsConstructor</span>
+@FieldMatch.List({
+        @FieldMatch(first = &quot;password&quot;, second = &quot;passwordConfirmation&quot;, message = &quot;Password fields must match&quot;)
+})
+public class UserDTO {
+
+<span class="nc" id="L26">    private Long id;</span>
+
+    @NotNull
+    @ValidEmail
+<span class="nc" id="L30">    private String email;</span>
+
+    @NotNull
+    @Size(min=6, max=100, message = &quot;Min size is 6 and max size is 100&quot;)
+    @Password
+<span class="nc" id="L35">    private String password;</span>
+
+    @NotNull
+    @Size(min=6, max=100, message = &quot;Min size is 6 and max size is 100&quot;)
+<span class="nc" id="L39">    private String passwordConfirmation;</span>
+
+    @NotNull
+    @Size(min=2, max=100, message = &quot;Min size is 2 and max size is 100&quot;)
+<span class="nc" id="L43">    private String firstName;</span>
+
+    @NotNull
+    @Size(min=2, max=100, message = &quot;Min size is 2 and max size is 100&quot;)
+<span class="nc" id="L47">    private String lastName;</span>
+
+    @PastOrPresent
+    @DateTimeFormat(pattern = &quot;dd.MM.yyyy&quot;)
+<span class="nc" id="L51">    private LocalDate dob;</span>
+
+<span class="nc" id="L53">    private String sex;</span>
+<span class="nc" id="L54">    private String phone;</span>
+<span class="nc" id="L55">    private Boolean isAdmin;</span>
+<span class="nc" id="L56">    private String image;</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="nc" id="L62">        UserDTO user = (UserDTO) o;</span>
+<span class="nc" id="L63">        return id.equals(user.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L68">        return Objects.hash(id);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

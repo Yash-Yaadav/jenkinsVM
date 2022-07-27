@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yashsocial-webapp
+  labels:
+    app: yashsocial-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yashsocial-webapp
+
+  template:
+    metadata:
+      name: yashsocial-webapp
+      labels:
+        app: yashsocial-webapp
+    spec:
+
+        containers:
+          - name: yashsocial-webapp
+            image: yash059/socialapp01
+            ports:
+              - containerPort: 8080
+                name: mysql
+            env:
+              - name: DB_HOSTNAME
+                value: "mysql"
+              - name: DB_PORT
+                value: "3306"
+              - name: DB_NAME
+                value: "spring_social_network"
+              - name: DB_USERNAME
+                value: "root"
+              - name: DB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: my-db-secret
+                    key: db-password 

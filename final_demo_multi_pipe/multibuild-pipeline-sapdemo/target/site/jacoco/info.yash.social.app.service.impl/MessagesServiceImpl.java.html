@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessagesServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.service.impl</a> &gt; <span class="el_source">MessagesServiceImpl.java</span></div><h1>MessagesServiceImpl.java</h1><pre class="source lang-java linenums">package info.yash.social.app.service.impl;
+
+import info.yash.social.app.converters.MessageDtoToMessageConverter;
+import info.yash.social.app.converters.MessageToMessageDtoConverter;
+import info.yash.social.app.dto.MessageDTO;
+import info.yash.social.app.entities.Message;
+import info.yash.social.app.entities.User;
+import info.yash.social.app.repositories.MessageRepository;
+import info.yash.social.app.service.MessagesService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+<span class="fc" id="L17">@RequiredArgsConstructor</span>
+public class MessagesServiceImpl implements MessagesService {
+
+    private final MessageRepository messageRepository;
+    private final MessageToMessageDtoConverter messageToMessageDtoConverter;
+    private final MessageDtoToMessageConverter messageDtoToMessageConverter;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection&lt;MessageDTO&gt; findAllRecentMessages(Long id) {
+<span class="nc" id="L27">        Iterable&lt;Message&gt; all = messageRepository.findAllRecentMessages(id);</span>
+<span class="nc" id="L28">        Map&lt;User, MessageDTO&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L29">        all.forEach(m -&gt; {</span>
+<span class="nc" id="L30">            MessageDTO messageDTO = messageToMessageDtoConverter.convert(m, id);</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">            User user = m.getSender().getId().equals(id) ? m.getReceiver() : m.getSender();</span>
+<span class="nc" id="L32">            map.put(user, messageDTO);</span>
+<span class="nc" id="L33">        });</span>
+<span class="nc" id="L34">        return map.values();</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;MessageDTO&gt; findConversation(Long userId, Long companionId) {
+<span class="nc" id="L40">        List&lt;Message&gt; all = messageRepository.findConversation(userId, companionId);</span>
+<span class="nc" id="L41">        List&lt;MessageDTO&gt; messages = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L42">        all.forEach(m -&gt; messages.add(messageToMessageDtoConverter.convert(m, userId)));</span>
+<span class="nc" id="L43">        return messages;</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MessageDTO getRecentMessage(Long id) {
+<span class="nc" id="L49">        Message message = messageRepository.findFirstBySenderIdOrReceiverIdOrderByIdDesc(id, id);</span>
+<span class="nc" id="L50">        MessageDTO messageDTO = messageToMessageDtoConverter.convert(message, id);</span>
+<span class="nc" id="L51">        return messageDTO;</span>
+    }
+
+    @Override
+    @Transactional
+    public void postMessage(MessageDTO messageDTO) {
+<span class="nc" id="L57">        Message message = messageDtoToMessageConverter.convert(messageDTO);</span>
+<span class="nc" id="L58">        messageRepository.save(message);</span>
+<span class="nc" id="L59">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

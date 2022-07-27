@@ -1,0 +1,62 @@
+---
+#ansy playbook start with three dash
+-
+###this minus in yaml indicate a list of items. the play contains a list of play
+  hosts: redhat-dockervm
+  vars:
+    container_count: 4
+    default_container_name: reddocker
+    default_container_image: gopal1409/chatapp
+    default_container_command: sleep 1
+  tasks:
+    - name: Update all installed packages using YUM module
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+        update_only: yes
+
+    - name: Install yum utils
+      yum:
+        name: "{{ item }}"
+        state: latest
+
+      with_items:
+      - yum-utils
+      - device-mapper-persistent-data
+
+    - name: Add Docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      become: yes
+
+    - name: Install Docker
+      package:
+        name: docker-ce
+        state: latest
+      become: yes
+
+    - name: install python pip package
+      yum:
+        name: python3-pip
+        state: present
+    - name: install docker module for python
+      pip:
+        name: docker
+    - name: Starting and enabling docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: download the docker image
+      docker_image:
+        name: "{{default_container_image}}"
+        source: pull
+    - name: run the docker container
+      docker_container:
+        name: "{{default_container_name}}{{item}}"
+        image: "{{default_container_image}}"
+        command: "{{default_container_command}}"
+      with_sequence: count={{container_count}}

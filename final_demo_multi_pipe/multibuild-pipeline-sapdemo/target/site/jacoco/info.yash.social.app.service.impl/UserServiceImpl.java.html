@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.service.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package info.yash.social.app.service.impl;
+
+import info.yash.social.app.constants.Gender;
+import info.yash.social.app.converters.PageToPageDtoUserConverter;
+import info.yash.social.app.converters.UserDtoToUserConverter;
+import info.yash.social.app.converters.UserToUserDtoConverter;
+import info.yash.social.app.dto.PageDTO;
+import info.yash.social.app.dto.UserDTO;
+import info.yash.social.app.entities.Role;
+import info.yash.social.app.entities.User;
+import info.yash.social.app.exceptions.SocialNetworkException;
+import info.yash.social.app.exceptions.UserNotFoundException;
+import info.yash.social.app.repositories.RoleRepository;
+import info.yash.social.app.repositories.UserRepository;
+import info.yash.social.app.service.UserService;
+import info.yash.social.app.constants.Constants;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+
+@Service
+<span class="fc" id="L27">@RequiredArgsConstructor</span>
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final UserToUserDtoConverter userToUserDtoConverter;
+    private final UserDtoToUserConverter userDtoToUserConverter;
+    private final PageToPageDtoUserConverter pageToPageDtoUserConverter;
+
+    private static void checkSuperAdmin(User user) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (user.getId() == 1)</span>
+<span class="nc" id="L39">            throw new SocialNetworkException(&quot;It is not allowed to change roles for the user with id = 1&quot;);</span>
+<span class="nc" id="L40">    }</span>
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUser(Long id) {
+<span class="nc" id="L45">        return userRepository.findById(id)</span>
+<span class="nc" id="L46">                             .orElseThrow(() -&gt;</span>
+<span class="nc" id="L47">                                     new UserNotFoundException(String.format(&quot;User with id = %s is not found&quot;, id)));</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDTO getUserById(Long id) {
+<span class="nc" id="L53">        User user = getUser(id);</span>
+<span class="nc" id="L54">        return userToUserDtoConverter.convert(user);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDTO getUserByEmail(String email) {
+<span class="nc" id="L60">        User user = userRepository.findUserByEmail(email);</span>
+<span class="nc" id="L61">        return userToUserDtoConverter.convert(user);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageDTO&lt;UserDTO&gt; findAllPageable(Long id, Pageable pageable) {
+<span class="nc" id="L67">        Page&lt;User&gt; pagedUsers = userRepository.findAllByIdNot(id, pageable);</span>
+<span class="nc" id="L68">        return pageToPageDtoUserConverter.convert(pagedUsers);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageDTO&lt;UserDTO&gt; findAllWithSearch(Long id, String search, Pageable pageable) {
+<span class="nc" id="L74">        search = String.format(&quot;%%%s%%&quot;, search).toLowerCase();</span>
+<span class="nc" id="L75">        Page&lt;User&gt; pagedUsers = userRepository.findAllWithSearch(id, search, pageable);</span>
+<span class="nc" id="L76">        return pageToPageDtoUserConverter.convert(pagedUsers);</span>
+    }
+
+    @Override
+    @Transactional
+    public void createUser(UserDTO userDTO) {
+<span class="nc" id="L82">        User user = userDtoToUserConverter.convert(userDTO);</span>
+<span class="nc" id="L83">        user.setRoles(new ArrayList&lt;&gt;());</span>
+
+<span class="nc" id="L85">        Role role = roleRepository.getRoleByName(Constants.ROLE_USER);</span>
+<span class="nc" id="L86">        user.getRoles().add(role);</span>
+
+<span class="nc" id="L88">        userRepository.save(user);</span>
+<span class="nc" id="L89">    }</span>
+
+    @Override
+    @Transactional
+    public void updatePassword(String password, Long id) {
+<span class="nc" id="L94">        String encodedPassword = passwordEncoder.encode(password);</span>
+<span class="nc" id="L95">        userRepository.updatePassword(encodedPassword, id);</span>
+<span class="nc" id="L96">    }</span>
+
+    @Override
+    @Transactional
+    public void updateUser(UserDTO user) {
+<span class="nc" id="L101">        int gender = Gender.getGenderByName(user.getSex());</span>
+<span class="nc" id="L102">        userRepository.updateUserSettings(user.getFirstName(), user.getLastName(), user.getDob(), gender,</span>
+<span class="nc" id="L103">                user.getPhone(), user.getId());</span>
+<span class="nc" id="L104">    }</span>
+
+    @Override
+    @Transactional
+    public void updateUserImage(UserDTO userDTO, String fileName) {
+<span class="nc" id="L109">        User user = getUser(userDTO.getId());</span>
+<span class="nc" id="L110">        user.setImage(fileName);</span>
+<span class="nc" id="L111">        userRepository.save(user);</span>
+<span class="nc" id="L112">        userDTO.setImage(fileName);</span>
+<span class="nc" id="L113">    }</span>
+
+    @Override
+    @Transactional
+    public void makeUserAdmin(Long userId) {
+<span class="nc" id="L118">        User user = getUser(userId);</span>
+<span class="nc" id="L119">        checkSuperAdmin(user);</span>
+<span class="nc" id="L120">        Role role = roleRepository.getRoleByName(Constants.ROLE_ADMIN);</span>
+<span class="nc" id="L121">        user.getRoles().add(role);</span>
+<span class="nc" id="L122">        userRepository.save(user);</span>
+<span class="nc" id="L123">    }</span>
+
+    @Override
+    @Transactional
+    public void blockUser(Long userId) {
+<span class="nc" id="L128">        User user = getUser(userId);</span>
+<span class="nc" id="L129">        checkSuperAdmin(user);</span>
+<span class="nc" id="L130">        user.setRoles(new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L131">        userRepository.save(user);</span>
+<span class="nc" id="L132">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

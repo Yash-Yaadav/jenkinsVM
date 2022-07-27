@@ -1,0 +1,3 @@
+---
+# handlers file for nginxi
+- import_tasks: handlers.yml

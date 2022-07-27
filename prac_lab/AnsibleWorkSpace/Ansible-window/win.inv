@@ -1,0 +1,7 @@
+[winhost]
+10.2.0.8
+[winhost:vars]
+ansible_user=yash
+ansible_password=
+ansible_connection=ansiblewin
+ansible_winrm_server_cert_validation=ignore

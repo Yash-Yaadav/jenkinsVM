@@ -1,0 +1,15 @@
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/exceptionHandling/ResponseExceptionHandler.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/config/LocalizationConfiguration.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/config/BcryptPasswordEncoderConfig.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/UsersController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/config/ApplicationSecurityConfig.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/SettingsController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/utils/ServerUtils.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/SocialNetworkApplication.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/config/CustomAuthenticationSuccessHandler.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/ProfileController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/initializer/ImageInitializer.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/IndexController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/MessagesController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/AdminController.java
+/root/yash-socialapp-jenkins/web.yash.social/src/main/java/info/yash/social/app/controllers/FriendsController.java

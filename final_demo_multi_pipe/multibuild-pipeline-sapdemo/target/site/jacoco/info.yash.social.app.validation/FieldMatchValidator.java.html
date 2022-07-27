@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FieldMatchValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">social-app</a> &gt; <a href="index.source.html" class="el_package">info.yash.social.app.validation</a> &gt; <span class="el_source">FieldMatchValidator.java</span></div><h1>FieldMatchValidator.java</h1><pre class="source lang-java linenums">package info.yash.social.app.validation;
+
+import org.springframework.beans.BeanWrapperImpl;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+<span class="nc" id="L8">public class FieldMatchValidator implements ConstraintValidator&lt;FieldMatch, Object&gt; {</span>
+	
+	private String firstFieldName;
+    private String secondFieldName;
+    private String message;
+
+    @Override
+    public void initialize(final FieldMatch constraintAnnotation) {
+<span class="nc" id="L16">	    	firstFieldName = constraintAnnotation.first();</span>
+<span class="nc" id="L17">	    	secondFieldName = constraintAnnotation.second();</span>
+<span class="nc" id="L18">        message = constraintAnnotation.message();</span>
+<span class="nc" id="L19">    }</span>
+
+    @Override
+    public boolean isValid(final Object value, final ConstraintValidatorContext context) {
+<span class="nc" id="L23">        boolean valid = true;</span>
+        try
+        {
+<span class="nc" id="L26">            final Object firstObj = new BeanWrapperImpl(value).getPropertyValue(firstFieldName);</span>
+<span class="nc" id="L27">            final Object secondObj = new BeanWrapperImpl(value).getPropertyValue(secondFieldName);</span>
+
+<span class="nc bnc" id="L29" title="All 8 branches missed.">            valid =  firstObj == null &amp;&amp; secondObj == null || firstObj != null &amp;&amp; firstObj.equals(secondObj);</span>
+        }
+<span class="nc" id="L31">        catch (final Exception ignore)</span>
+        {
+            // we can ignore
+<span class="nc" id="L34">        }</span>
+
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (!valid){</span>
+<span class="nc" id="L37">            context.buildConstraintViolationWithTemplate(message)</span>
+<span class="nc" id="L38">                    .addPropertyNode(firstFieldName)</span>
+<span class="nc" id="L39">                    .addConstraintViolation()</span>
+<span class="nc" id="L40">                    .disableDefaultConstraintViolation();</span>
+        }
+
+<span class="nc" id="L43">        return valid;</span>
+    }
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
